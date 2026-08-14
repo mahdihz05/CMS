@@ -1,0 +1,6 @@
+Django>=5.2,<5.3
+wagtail>=7.4,<7.5
+django-treebeard>=4.8,<5
+dj-database-url>=2.3,<3
+psycopg[binary]>=3.2,<4
+gunicorn>=23,<24

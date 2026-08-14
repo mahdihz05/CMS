@@ -1,0 +1,19 @@
+{
+  "license": "https://www.pexels.com/legal-pages/license/",
+  "downloadedAt": "2026-08-14",
+  "notes": "Files are bundled locally; seed execution does not access the network. Photographer metadata was unavailable from the source endpoint at download time and is intentionally marked unknown.",
+  "items": [
+    {"id":"12720210","file":"pexels-12720210.webp","alt":"عینک آفتابی آریا از مجموعه ویژنا","caption":"نمای عینک آفتابی آریا","photographer":"نامشخص","source":"https://www.pexels.com/photo/12720210/","sha256":"450faf2417aa57a968cf8a61876f77f76bb85d8aa8a47864df6586d26446c829"},
+    {"id":"12352237","file":"pexels-12352237.webp","alt":"عینک آفتابی ساحل ویژنا","caption":"نمای محصول آفتابی ساحل","photographer":"نامشخص","source":"https://www.pexels.com/photo/12352237/","sha256":"8426630ecaf538079d23629ad8857b15a76ca758caec14da102c6ecf2cd036f3"},
+    {"id":"1499477","file":"pexels-1499477.webp","alt":"عینک آفتابی کلاسیک مهر","caption":"نمای محصول کلاسیک مهر","photographer":"نامشخص","source":"https://www.pexels.com/photo/1499477/","sha256":"9df24e2a345b8b2986f5739e99d56587284521f6070aad76bafe7dcca49506bf"},
+    {"id":"5677349","file":"pexels-5677349.webp","alt":"عینک آفتابی پلاریزه هور","caption":"نمای محصول پلاریزه هور","photographer":"نامشخص","source":"https://www.pexels.com/photo/5677349/","sha256":"cd8471ff6cecac460595caa61710f1025ac9c97cd3bfecb995e171a9016b0994"},
+    {"id":"4936933","file":"pexels-4936933.webp","alt":"فریم طبی رستا","caption":"نمای فریم طبی رستا","photographer":"نامشخص","source":"https://www.pexels.com/photo/4936933/","sha256":"6b300da33d5386f730fd5f1ff1095920baaefdd4e388903f5269e5f76642ae2d"},
+    {"id":"28938431","file":"pexels-28938431.webp","alt":"فریم تیتانیوم ماهور","caption":"نمای فریم تیتانیوم ماهور","photographer":"نامشخص","source":"https://www.pexels.com/photo/28938431/","sha256":"59060a4ab168585812bb63fc96ef2a13b86672bc08430163495ca3cd5b8adc42"},
+    {"id":"11199907","file":"pexels-11199907.webp","alt":"فریم سبک نیلا","caption":"نمای فریم سبک نیلا","photographer":"نامشخص","source":"https://www.pexels.com/photo/11199907/","sha256":"3a9e5117f7fe133ab0229506a2114eb721511a861029653fe8d6bea3e7a2b852"},
+    {"id":"8360292","file":"pexels-8360292.webp","alt":"فریم گرد ویدا","caption":"نمای فریم گرد ویدا","photographer":"نامشخص","source":"https://www.pexels.com/photo/8360292/","sha256":"4a9029a82f91b7f8d5e8fe10a7204ff7697d0e6b39679212a5b3dbe83b53696a"},
+    {"id":"5752246","file":"pexels-5752246.webp","alt":"عینک بلوکات کارا","caption":"نمای عینک بلوکات کارا","photographer":"نامشخص","source":"https://www.pexels.com/photo/5752246/","sha256":"d2136127f5e765150fa776e9eb75e20095cf9a591b33705a390771ef3e18f994"},
+    {"id":"29538700","file":"pexels-29538700.webp","alt":"عینک بلوکات سپهر","caption":"نمای عینک بلوکات سپهر","photographer":"نامشخص","source":"https://www.pexels.com/photo/29538700/","sha256":"55f74b18d3267c7875a78affd0e5812f4901c892c7e93fb68dca33a6064077e2"},
+    {"id":"5201996","file":"pexels-5201996.webp","alt":"عینک ورزشی تندر","caption":"نمای عینک ورزشی تندر","photographer":"نامشخص","source":"https://www.pexels.com/photo/5201996/","sha256":"2d70e059756f5edc84fa85f06a1f89e9370b4c22934ea18e5d1e8c7603af9f8c"},
+    {"id":"5766170","file":"pexels-5766170.webp","alt":"عینک ورزشی اوج","caption":"نمای عینک ورزشی اوج","photographer":"نامشخص","source":"https://www.pexels.com/photo/5766170/","sha256":"7ed2704fa06e9b7bdedeaf9cc3fdb0f89714399ce3f87707871890157c9178e5"}
+  ]
+}

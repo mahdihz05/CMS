@@ -1,0 +1,16 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags %}
+{% block titletag %}پیشخوان سئو{% endblock %}
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title="پیشخوان سئو" icon="search" %}
+  <div class="nice-padding visiona-seo-dashboard">
+    <p class="help-block">موارد مهم سئوی محتوای منتشرشده و پیش‌نویس‌ها را از اینجا پیگیری کنید.</p>
+    <div class="visiona-widget-grid visiona-widget-grid--counts">
+      <div class="visiona-stat visiona-stat--warning"><strong>{{ missing_title }}</strong><span>عنوان سئوی ناقص</span></div>
+      <div class="visiona-stat visiona-stat--warning"><strong>{{ missing_description }}</strong><span>توضیحات متای ناقص</span></div>
+      <div class="visiona-stat"><strong>{{ noindex }}</strong><span>صفحه noindex</span></div>
+      <div class="visiona-stat"><strong>{{ redirects }}</strong><span>تغییر مسیر فعال</span></div>
+    </div>
+    <div class="visiona-widget"><header><h3>ابزارهای سئو</h3></header><div class="visiona-widget__body visiona-quick-actions"><a class="button" href="/admin/snippets/seo/seoredirect/">تغییر مسیرها</a><a class="button button-secondary" href="/api/v1/sitemap.xml" target="_blank">مشاهده نقشه سایت</a><a class="button button-secondary" href="/api/v1/robots.txt" target="_blank">مشاهده robots.txt</a></div></div>
+  </div>
+{% endblock %}

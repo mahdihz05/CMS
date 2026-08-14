@@ -1,0 +1,3 @@
+import { NextRequest, NextResponse } from "next/server";
+const CMS=process.env.CMS_BASE_URL??"http://localhost:8000";
+export async function POST(request:NextRequest){const form=await request.formData();const payload:Record<string,FormDataEntryValue|number>=Object.fromEntries(form.entries());payload.pageId=Number(payload.pageId);const response=await fetch(`${CMS}/api/v1/forms/submit/`,{method:"POST",headers:{"content-type":"application/json","x-visiona-form-secret":process.env.FORM_API_SECRET??"unsafe-development-form-secret"},body:JSON.stringify(payload)});if(!response.ok)return NextResponse.json(await response.json(),{status:response.status});return NextResponse.redirect(new URL("/contact/?submitted=1",request.url),303);}

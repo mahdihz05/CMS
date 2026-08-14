@@ -1,0 +1,5 @@
+export type ImageData = { url:string; width:number; height:number; alt:string } | null;
+export type MenuItem = { label:string; url:string };
+export type Card = { id:number; title:string; url:string; description?:string; excerpt?:string; date?:string; priceToman?:string; originalPriceToman?:string; category?:string; image?:ImageData };
+export type Block = { id:string; type:string; value:unknown };
+export type PageData = { id:number; type:string; title:string; url:string; blocks:Block[]; metadata:{ title:string; description:string; canonical:string; robots:string; openGraph:{ title:string; description:string; image:ImageData } }; schemas:Record<string,unknown>[]; products?:Card[]; posts?:Card[]; product?:{ sku:string; shortDescription:string; description:string; priceToman:string; discountPriceToman:string|null; available:boolean; category:string|null; image:ImageData }; article?:{ date:string; excerpt:string; author:string }; form?:{ pageId:number; fields:Array<{name:string;label:string;type:string;required:boolean}> } };

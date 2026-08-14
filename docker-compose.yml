@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: visiona
+      POSTGRES_USER: visiona
+      POSTGRES_PASSWORD: visiona
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U visiona"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://visiona:visiona@db:5432/visiona
+      CMS_BASE_URL: http://localhost:8000
+    ports: ["8000:8000"]
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      CMS_BASE_URL: http://backend:8000
+      NEXT_PUBLIC_CMS_BASE_URL: http://localhost:8000
+      API_REVALIDATE_SECONDS: 60
+      FORM_API_SECRET: ${FORM_API_SECRET}
+    ports: ["3000:3000"]
+    depends_on: [backend]
+
+volumes:
+  postgres_data:
+  media_data:

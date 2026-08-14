@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+media/
+staticfiles/
+node_modules/
+.next/
+.npm-cache/
+.appdata/
+.agents/
+.docker-config/
+coverage/
+.DS_Store
