@@ -2,7 +2,7 @@
 
 Visiona is a working single-site catalog pilot built with Django, Wagtail,
 PostgreSQL and a Next.js App Router frontend. It demonstrates structured page
-components, a WordPress-familiar admin, technical SEO defaults, workflow,
+components, a Persian RTL admin based on the approved Stitch design system, technical SEO defaults, workflow,
 permissions, media renditions and a fictional eight-product eyewear store.
 
 ## Requirements
@@ -84,7 +84,7 @@ cd backend
 ..\.venv\Scripts\python manage.py seed_demo --admin-password admin
 
 # backend tests and production checks
-..\.venv\Scripts\python manage.py test
+..\.venv\Scripts\python manage.py test content seo api home
 $env:DJANGO_SETTINGS_MODULE='config.settings.production'
 ..\.venv\Scripts\python manage.py check --deploy
 

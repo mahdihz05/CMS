@@ -34,3 +34,15 @@ class SEOTests(TestCase):
         redirect = SeoRedirect(site=site, old_path="/b/", new_url="/a/")
         with self.assertRaises(ValidationError):
             redirect.full_clean()
+
+    def test_redirect_path_and_self_target_are_rejected(self):
+        site = Site.objects.get(is_default_site=True)
+        invalid_path = SeoRedirect(site=site, old_path="old", new_url="/new/")
+        with self.assertRaises(ValidationError) as path_error:
+            invalid_path.full_clean()
+        self.assertIn("old_path", path_error.exception.message_dict)
+
+        self_target = SeoRedirect(site=site, old_path="/same/", new_url="/same/")
+        with self.assertRaises(ValidationError) as self_error:
+            self_target.full_clean()
+        self.assertIn("new_url", self_error.exception.message_dict)

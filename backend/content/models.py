@@ -23,6 +23,11 @@ class ContentPage(Page, SEOFieldsMixin):
 class StandardPage(ContentPage):
     parent_page_types = ["home.HomePage"]
     subpage_types = []
+    edit_handler = TabbedInterface([
+        ObjectList(ContentPage.content_panels, heading="محتوا"),
+        ObjectList(Page.promote_panels + SEOFieldsMixin.seo_panels, heading="سئو و شبکه‌های اجتماعی"),
+        ObjectList(Page.settings_panels, heading="تنظیمات پیشرفته"),
+    ])
 
     class Meta:
         verbose_name = "برگه"
@@ -158,6 +163,12 @@ class MenuItem(Orderable):
     page = models.ForeignKey(Page, verbose_name="برگه", null=True, blank=True, on_delete=models.CASCADE, related_name="+")
     external_url = models.URLField("نشانی خارجی", blank=True)
     panels = [FieldPanel("label"), FieldPanel("page"), FieldPanel("external_url")]
+
+    def clean(self):
+        super().clean()
+        if bool(self.page_id) == bool(self.external_url):
+            from django.core.exceptions import ValidationError
+            raise ValidationError("برای هر آیتم دقیقاً یک برگه یا یک نشانی خارجی انتخاب کنید.")
 
 
 @register_setting

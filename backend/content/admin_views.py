@@ -1,12 +1,15 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.shortcuts import render
 from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.snippets.views.snippets import SnippetViewSet
 from wagtail.models import Page
+from wagtail.permissions import page_permission_policy
 
 from .models import BlogPage, Category, Menu, ProductPage, StandardPage
 from seo.models import SeoRedirect
+from seo.services import analyze_page
 
 
 class StandardPageViewSet(PageListingViewSet):
@@ -75,13 +78,25 @@ class SeoRedirectViewSet(SnippetViewSet):
 
 @login_required
 def seo_dashboard(request):
-    pages = Page.objects.exclude(depth=1).specific()
-    missing_title = sum(1 for page in pages if not getattr(page, "seo_title", ""))
-    missing_description = sum(1 for page in pages if not getattr(page, "search_description", ""))
-    noindex = sum(1 for page in pages if hasattr(page, "robots_index") and not page.robots_index)
+    roles = set(request.user.groups.values_list("name", flat=True))
+    if not (request.user.is_superuser or roles & {"Developer", "SEO Specialist", "Client / Site Manager"}):
+        raise PermissionDenied
+    editable = page_permission_policy.instances_user_has_permission_for(request.user, "change").exclude(depth=1).specific()
+    page_results = []
+    all_issues = []
+    for page in editable:
+        result = analyze_page(page)
+        page_results.append({"page": page, **result})
+        all_issues.extend(result["issues"])
+    issue_codes = [issue["code"] for issue in all_issues]
     return render(request, "content/admin/seo_dashboard.html", {
-        "missing_title": missing_title,
-        "missing_description": missing_description,
-        "noindex": noindex,
+        "missing_title": issue_codes.count("title_default"),
+        "missing_description": issue_codes.count("description_missing"),
+        "noindex": issue_codes.count("noindex"),
+        "canonical_issues": issue_codes.count("canonical_invalid") + issue_codes.count("canonical_external"),
+        "error_count": sum(issue["severity"] == "error" for issue in all_issues),
+        "warning_count": sum(issue["severity"] == "warning" for issue in all_issues),
+        "average_health": round(sum(item["health"] for item in page_results) / len(page_results)) if page_results else 100,
+        "page_results": sorted(page_results, key=lambda item: item["health"]),
         "redirects": SeoRedirect.objects.filter(is_active=True).count(),
     })

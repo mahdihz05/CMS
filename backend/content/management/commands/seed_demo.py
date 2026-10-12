@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group, Permission, User
 from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.db.models import Q
 from wagtail.images import get_image_model
 from wagtail.models import Collection, GroupApprovalTask, GroupPagePermission, Page, Site, Workflow, WorkflowPage, WorkflowTask
 
@@ -68,6 +69,10 @@ class Command(BaseCommand):
 
         if options["reset_demo"]:
             self.reset_known_demo(shop, blog)
+            # Page.delete() updates the persisted parent counters. Refresh the
+            # parent instances before treebeard uses them for new children.
+            shop.refresh_from_db()
+            blog.refresh_from_db()
         self.assert_no_collisions(shop)
 
         home.title, home.slug = "ویژنا؛ فروشگاه تخصصی عینک", "home"
@@ -151,8 +156,13 @@ class Command(BaseCommand):
 
     def reset_known_demo(self, shop, blog):
         demo_skus = {row[2] for row in PRODUCTS} | LEGACY_PRODUCT_SKUS
-        ProductPage.objects.child_of(shop).filter(sku__in=demo_skus).delete()
-        BlogPage.objects.child_of(blog).filter(slug__in=({row[1] for row in POSTS} | LEGACY_POST_SLUGS)).delete()
+        # Page uses treebeard's materialised path tree. Deleting a page queryset
+        # bypasses its tree-aware delete implementation and can leave numchild
+        # inconsistent, so reset each known demo page through Page.delete().
+        demo_products = list(ProductPage.objects.child_of(shop).filter(sku__in=demo_skus))
+        demo_posts = list(BlogPage.objects.child_of(blog).filter(slug__in=({row[1] for row in POSTS} | LEGACY_POST_SLUGS)))
+        for page in [*demo_products, *demo_posts]:
+            page.delete()
         get_image_model().objects.filter(title__in=LEGACY_IMAGE_TITLES).delete()
         get_image_model().objects.filter(collection__name="تصاویر دموی ویژنا", title__in={row[0] for row in PRODUCTS}).delete()
         Category.objects.filter(slug__in={"optical", "computer-glasses"}, products__isnull=True).delete()
@@ -185,8 +195,14 @@ class Command(BaseCommand):
     def roles(self, password):
         groups = {name: Group.objects.get_or_create(name=name)[0] for name in ["Developer", "SEO Specialist", "Content Editor", "Client / Site Manager"]}
         editor_permissions = Permission.objects.filter(codename__in=["access_admin", "add_page", "change_page", "add_image", "change_image", "add_document", "change_document"])
-        groups["Content Editor"].permissions.set(editor_permissions); groups["Client / Site Manager"].permissions.set(editor_permissions)
-        groups["SEO Specialist"].permissions.set(Permission.objects.filter(codename__in=["access_admin", "change_page", "add_seoredirect", "change_seoredirect", "delete_seoredirect", "view_seoredirect"]))
+        category_permissions = Permission.objects.filter(content_type__app_label="content", content_type__model="category", codename__in=["add_category", "change_category", "delete_category", "view_category"])
+        menu_permissions = Permission.objects.filter(content_type__app_label="content", content_type__model="menu", codename__in=["add_menu", "change_menu", "delete_menu", "view_menu"])
+        redirect_permissions = Permission.objects.filter(content_type__app_label="seo", content_type__model="seoredirect")
+        groups["Content Editor"].permissions.set(editor_permissions | category_permissions)
+        groups["Client / Site Manager"].permissions.set(editor_permissions | category_permissions | menu_permissions | redirect_permissions)
+        seo_base = Permission.objects.filter(Q(codename="access_admin") | Q(content_type__app_label="wagtailcore", codename="change_page"))
+        category_view = category_permissions.filter(codename="view_category")
+        groups["SEO Specialist"].permissions.set(seo_base | category_view | redirect_permissions)
         groups["Developer"].permissions.set(Permission.objects.all())
         home = HomePage.objects.first(); page_perms = {p.codename: p for p in Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=["add_page", "change_page", "publish_page", "lock_page", "unlock_page"])}
         mapping = {"Content Editor": ["add_page", "change_page"], "SEO Specialist": ["change_page"], "Client / Site Manager": ["add_page", "change_page", "publish_page"], "Developer": list(page_perms)}

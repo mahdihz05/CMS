@@ -1,17 +1,21 @@
+from django.conf import settings
+from django.db import connection
+from django.db.models import Count, Q
 from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import format_html
 from wagtail import hooks
 from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
 from wagtail.admin.ui.components import Component
-from wagtail.models import Page, Site, WorkflowState
+from wagtail.models import Page, Site, TaskState
+from wagtail.permissions import page_permission_policy
 from wagtail.snippets.models import register_snippet
 
 from content.admin_views import (
     BlogPageViewSet, CategoryViewSet, MenuViewSet, ProductPageViewSet,
     SeoRedirectViewSet, StandardPageViewSet, seo_dashboard,
 )
-from content.models import BlogPage, Category, ContactPage, ProductPage
+from content.models import BlogPage, Category, ContactPage, ProductPage, StandardPage
 from seo.models import SeoRedirect
 
 
@@ -34,12 +38,20 @@ def register_page_viewsets():
 
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
-    return format_html('<link rel="stylesheet" href="{}">', static("content/css/admin-wordpress.css"))
+    return format_html('<link rel="stylesheet" href="{}">', static("content/css/admin-visiona.css"))
 
 
 @hooks.register("insert_global_admin_js")
 def global_admin_js():
-    return format_html('<script src="{}"></script>', static("content/js/admin-wordpress.js"))
+    return format_html(
+        '<script src="{}" data-home-url="{}" data-search-url="{}" '
+        'data-account-url="{}" data-site-url="{}"></script>',
+        static("content/js/admin-visiona.js"),
+        reverse("wagtailadmin_home"),
+        reverse("wagtailadmin_pages:search"),
+        reverse("wagtailadmin_account"),
+        settings.PUBLIC_SITE_URL,
+    )
 
 
 @hooks.register("register_admin_urls")
@@ -114,28 +126,51 @@ class VisionaSummaryPanel(Component):
         self.request = request
 
     def get_context_data(self, parent_context=None):
-        pages = Page.objects.exclude(depth=1)
-        products = ProductPage.objects.all()
-        specific_pages = list(pages.specific())
+        user = self.request.user
+        editable_pages = page_permission_policy.instances_user_has_permission_for(user, "change").exclude(depth=1)
+        page_status = editable_pages.aggregate(
+            published=Count("pk", filter=Q(live=True)),
+            draft=Count("pk", filter=Q(live=False)),
+            scheduled=Count("pk", filter=Q(live=False, go_live_at__isnull=False)),
+        )
+        products = ProductPage.objects.filter(pk__in=editable_pages.values("pk"))
+        product_status = products.aggregate(
+            total=Count("pk"),
+            available=Count("pk", filter=Q(is_available=True)),
+            unavailable=Count("pk", filter=Q(is_available=False)),
+            sale=Count("pk", filter=Q(discount_price__isnull=False)),
+            featured=Count("pk", filter=Q(is_featured=True)),
+        )
+        reviewable = TaskState.objects.reviewable_by(user).filter(status=TaskState.STATUS_IN_PROGRESS)
+        roles = set(user.groups.values_list("name", flat=True))
+        is_developer = user.is_superuser or "Developer" in roles
+        home = Page.objects.filter(depth=2).specific().first()
+        shop = products.first().get_parent().specific if products.exists() else None
+        blog_page = BlogPage.objects.filter(pk__in=editable_pages.values("pk")).first()
+        blog = blog_page.get_parent().specific if blog_page else None
         return {
-            "page_count": pages.count(), "post_count": BlogPage.objects.count(),
-            "product_count": products.count(), "category_count": Category.objects.count(),
-            "form_count": ContactPage.objects.count(),
-            "draft_count": pages.filter(live=False).count(),
-            "published_count": pages.filter(live=True).count(),
-            "scheduled_count": pages.filter(live=False, go_live_at__isnull=False).count(),
-            "review_count": WorkflowState.objects.filter(status=WorkflowState.STATUS_IN_PROGRESS).count(),
-            "available_count": products.filter(is_available=True).count(),
-            "unavailable_count": products.filter(is_available=False).count(),
-            "sale_count": products.exclude(discount_price=None).count(),
-            "featured_count": products.filter(is_featured=True).count(),
-            "seo_issues": sum(1 for p in specific_pages if not getattr(p, "search_description", "")),
-            "recent_pages": pages.order_by("-latest_revision_created_at")[:6].specific(),
+            "page_count": StandardPage.objects.filter(pk__in=editable_pages.values("pk")).count(),
+            "post_count": BlogPage.objects.filter(pk__in=editable_pages.values("pk")).count(),
+            "product_count": product_status["total"], "category_count": Category.objects.count(),
+            "form_count": ContactPage.objects.filter(pk__in=editable_pages.values("pk")).count(),
+            "draft_count": page_status["draft"], "published_count": page_status["published"],
+            "scheduled_count": page_status["scheduled"], "review_count": reviewable.count(),
+            "content_review_count": reviewable.filter(task__name="بازبینی محتوا").count(),
+            "seo_review_count": reviewable.filter(task__name="بازبینی سئو").count(),
+            "available_count": product_status["available"], "unavailable_count": product_status["unavailable"],
+            "sale_count": product_status["sale"], "featured_count": product_status["featured"],
+            "seo_issues": editable_pages.filter(Q(search_description="") | Q(search_description__isnull=True)).count(),
+            "recent_pages": editable_pages.order_by("-latest_revision_created_at")[:6].specific(),
             "urls": {"pages": PAGE_VIEWSET.menu_url, "posts": POST_VIEWSET.menu_url,
                      "products": PRODUCT_VIEWSET.menu_url, "categories": CATEGORY_VIEWSET.menu_url,
-                     "seo": reverse("visiona_seo_dashboard")},
-            "can_add_pages": self.request.user.has_perm("wagtailcore.add_page"),
-            "can_add_images": self.request.user.has_perm("wagtailimages.add_image"),
+                     "seo": reverse("visiona_seo_dashboard"),
+                     "workflow": reverse("wagtailadmin_reports:workflow_tasks")},
+            "can_add_page": bool(home and home.permissions_for_user(user).can_add_subpage()),
+            "can_add_post": bool(blog and blog.permissions_for_user(user).can_add_subpage()),
+            "can_add_product": bool(shop and shop.permissions_for_user(user).can_add_subpage()),
+            "can_add_images": user.has_perm("wagtailimages.add_image"),
+            "show_system_status": is_developer,
+            "system_database_ok": connection.is_usable(),
         }
 
 

@@ -4,13 +4,18 @@
 {% block content %}
   {% include "wagtailadmin/shared/header.html" with title="پیشخوان سئو" icon="search" %}
   <div class="nice-padding visiona-seo-dashboard">
-    <p class="help-block">موارد مهم سئوی محتوای منتشرشده و پیش‌نویس‌ها را از اینجا پیگیری کنید.</p>
+    <p class="help-block">این تحلیل یک راهنمای فنی داخلی است و امتیاز یا تضمین رتبه در گوگل نیست.</p>
     <div class="visiona-widget-grid visiona-widget-grid--counts">
+      <div class="visiona-stat"><strong>{{ average_health }}</strong><span>سلامت میانگین از ۱۰۰</span></div>
+      <div class="visiona-stat visiona-stat--warning"><strong>{{ error_count }}</strong><span>خطای مهم</span></div>
+      <div class="visiona-stat visiona-stat--warning"><strong>{{ warning_count }}</strong><span>هشدار</span></div>
       <div class="visiona-stat visiona-stat--warning"><strong>{{ missing_title }}</strong><span>عنوان سئوی ناقص</span></div>
       <div class="visiona-stat visiona-stat--warning"><strong>{{ missing_description }}</strong><span>توضیحات متای ناقص</span></div>
       <div class="visiona-stat"><strong>{{ noindex }}</strong><span>صفحه noindex</span></div>
+      <div class="visiona-stat"><strong>{{ canonical_issues }}</strong><span>Canonical نیازمند بررسی</span></div>
       <div class="visiona-stat"><strong>{{ redirects }}</strong><span>تغییر مسیر فعال</span></div>
     </div>
     <div class="visiona-widget"><header><h3>ابزارهای سئو</h3></header><div class="visiona-widget__body visiona-quick-actions"><a class="button" href="/admin/snippets/seo/seoredirect/">تغییر مسیرها</a><a class="button button-secondary" href="/api/v1/sitemap.xml" target="_blank">مشاهده نقشه سایت</a><a class="button button-secondary" href="/api/v1/robots.txt" target="_blank">مشاهده robots.txt</a></div></div>
+    <div class="visiona-widget visiona-seo-pages"><header><h3>صفحه‌های نیازمند بهبود</h3></header><div class="visiona-widget__body"><ul class="visiona-seo-page-list">{% for item in page_results %}{% if item.issues %}<li><div><a href="{% url 'wagtailadmin_pages:edit' item.page.pk %}">{{ item.page.title }}</a><span>سلامت {{ item.health }} از ۱۰۰</span></div><ul>{% for issue in item.issues %}<li class="is-{{ issue.severity }}">{{ issue.message }}</li>{% endfor %}</ul></li>{% endif %}{% empty %}<li>صفحه‌ای برای تحلیل در دسترس نیست.</li>{% endfor %}</ul></div></div>
   </div>
 {% endblock %}

@@ -3,12 +3,13 @@
   <div class="visiona-dashboard__head">
     <div><p class="visiona-kicker">مدیریت ویژنا</p><h2 id="visiona-dashboard-title">پیشخوان</h2><p>نمای کلی محتوا، فروشگاه و سلامت سئوی سایت</p></div>
     <div class="visiona-quick-actions">
-      {% if can_add_pages %}<a class="button button-small" href="{{ urls.products }}choose_parent/">محصول جدید</a>
-      <a class="button button-secondary button-small" href="{{ urls.posts }}choose_parent/">نوشته جدید</a>
-      <a class="button button-secondary button-small" href="{{ urls.pages }}choose_parent/">برگه جدید</a>{% endif %}
+      {% if can_add_product %}<a class="button button-small" href="{{ urls.products }}choose_parent/">محصول جدید</a>{% endif %}
+      {% if can_add_post %}<a class="button button-secondary button-small" href="{{ urls.posts }}choose_parent/">نوشته جدید</a>{% endif %}
+      {% if can_add_page %}<a class="button button-secondary button-small" href="{{ urls.pages }}choose_parent/">برگه جدید</a>{% endif %}
       {% if can_add_images %}<a class="button button-secondary button-small" href="{% url 'wagtailimages:add' %}">بارگذاری تصویر</a>{% endif %}
     </div>
   </div>
+  {% if show_system_status %}<div class="visiona-system-status {% if system_database_ok %}is-ok{% else %}is-error{% endif %}" role="status"><strong>وضعیت سامانه:</strong> {% if system_database_ok %}پنل و اتصال پایگاه داده در دسترس است.{% else %}اتصال پایگاه داده نیازمند بررسی است.{% endif %}</div>{% endif %}
   <div class="visiona-widget-grid visiona-widget-grid--counts">
     <a class="visiona-stat" href="{{ urls.pages }}"><strong>{{ page_count }}</strong><span>برگه و صفحه</span></a>
     <a class="visiona-stat" href="{{ urls.posts }}"><strong>{{ post_count }}</strong><span>نوشته</span></a>
@@ -19,6 +20,7 @@
   </div>
   <div class="visiona-widget-grid">
     <article class="visiona-widget"><header><h3>وضعیت انتشار</h3></header><div class="visiona-widget__body"><p><span>منتشرشده</span><b>{{ published_count }}</b></p><p><span>پیش‌نویس</span><b>{{ draft_count }}</b></p><p><span>در انتظار بررسی</span><b>{{ review_count }}</b></p><p><span>زمان‌بندی‌شده</span><b>{{ scheduled_count }}</b></p></div></article>
+    <article class="visiona-widget"><header><h3>صف‌های بازبینی</h3><a href="{{ urls.workflow }}">مشاهده صف</a></header><div class="visiona-widget__body"><p><span>بازبینی محتوا</span><b>{{ content_review_count }}</b></p><p><span>بازبینی سئو</span><b>{{ seo_review_count }}</b></p></div></article>
     <article class="visiona-widget"><header><h3>وضعیت فروشگاه</h3><a href="{{ urls.products }}">مشاهده همه</a></header><div class="visiona-widget__body"><p><span>موجود</span><b>{{ available_count }}</b></p><p><span>ناموجود</span><b>{{ unavailable_count }}</b></p><p><span>تخفیف‌دار</span><b>{{ sale_count }}</b></p><p><span>ویژه</span><b>{{ featured_count }}</b></p></div></article>
     <article class="visiona-widget visiona-widget--wide"><header><h3>آخرین ویرایش‌ها</h3></header><div class="visiona-widget__body"><ul class="visiona-recent">{% for page in recent_pages %}<li><a href="{% url 'wagtailadmin_pages:edit' page.id %}">{{ page.title }}</a><time>{{ page.latest_revision_created_at|date:"Y/m/d H:i" }}</time></li>{% empty %}<li>هنوز محتوایی ثبت نشده است.</li>{% endfor %}</ul></div></article>
   </div>

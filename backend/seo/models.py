@@ -35,13 +35,13 @@ class SEOFieldsMixin(models.Model):
 
 
 class SeoRedirect(models.Model):
-    STATUS_CHOICES = [(301, "301 Permanent"), (302, "302 Temporary"), (307, "307 Temporary"), (308, "308 Permanent")]
-    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="seo_redirects")
-    old_path = models.CharField(max_length=255, help_text="Path beginning with /")
-    new_url = models.CharField(max_length=500)
-    status_code = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=301)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = [(301, "۳۰۱ دائمی"), (302, "۳۰۲ موقت"), (307, "۳۰۷ موقت"), (308, "۳۰۸ دائمی")]
+    site = models.ForeignKey(Site, verbose_name="سایت", on_delete=models.CASCADE, related_name="seo_redirects")
+    old_path = models.CharField("مسیر قدیمی", max_length=255, help_text="مسیر باید با / شروع شود؛ نمونه: /old-page/")
+    new_url = models.CharField("نشانی مقصد", max_length=500)
+    status_code = models.PositiveSmallIntegerField("کد وضعیت", choices=STATUS_CHOICES, default=301)
+    is_active = models.BooleanField("فعال", default=True)
+    created_at = models.DateTimeField("زمان ایجاد", auto_now_add=True)
 
     panels = [FieldPanel("site"), FieldPanel("old_path"), FieldPanel("new_url"), FieldPanel("status_code"), FieldPanel("is_active")]
 

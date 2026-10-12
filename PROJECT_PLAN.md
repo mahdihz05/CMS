@@ -19,7 +19,7 @@ Checklist items are marked complete only after implementation and verification.
 
 ## Phase 2 — Wagtail CMS Core
 
-- [x] WordPress-familiar admin navigation
+- [x] Persian RTL admin navigation
 - [x] Site settings and media
 - [x] Redirect manager
 - [x] Audit-friendly admin configuration
@@ -114,12 +114,12 @@ Checklist items are marked complete only after implementation and verification.
 - Frontend lint, TypeScript and production build pass from the local runtime on drive G.
 - Fixed Wagtail dashboard component media contract and enabled the contrib settings app; live Admin and storefront smoke tests pass.
 
-## Persian WordPress-Style Admin Upgrade
+## Persian Stitch Admin Upgrade
 
 ### Phase A0 — Baseline and visual contract
 
 - [x] Record current Admin/content baseline
-- [x] Define WordPress-inspired visual tokens and exact navigation
+- [x] Define Stitch visual tokens and exact navigation
 - [x] Define phase acceptance gates
 
 ### Phase A1 — Persian and RTL foundation
@@ -130,13 +130,13 @@ Checklist items are marked complete only after implementation and verification.
 - [x] Translate custom models, panels, validation and UI copy
 - [x] Add localization tests
 
-### Phase A2 — WordPress-style Admin shell
+### Phase A2 — Stitch Admin shell
 
 - [x] Add global Admin CSS and JavaScript through Wagtail hooks
 - [x] Customize branding and login experience
 - [x] Build exact grouped Persian sidebar
 - [x] Preserve developer-only technical navigation
-- [x] Verify responsive and accessible Admin shell
+- [ ] Verify the responsive and accessible Admin shell in a live browser
 
 ### Phase A3 — First-class content listings
 
@@ -157,7 +157,7 @@ Checklist items are marked complete only after implementation and verification.
 ### Phase A5 — Editing experience
 
 - [x] Reorganize editor panels with Persian headings
-- [x] Add WordPress-like product data grouping
+- [x] Add Stitch-aligned product data grouping
 - [x] Add live SERP/social preview and SEO health panel
 - [x] Preserve Wagtail preview, revision, schedule and workflow
 - [x] Verify slug redirect behavior
@@ -185,3 +185,10 @@ Checklist items are marked complete only after implementation and verification.
 - [x] Run authenticated Admin route/role smoke tests
 - [x] Run storefront/API/SEO smoke tests
 - [x] Update final audit and restart local services
+
+### 2026-08-16 — Stitch redesign verification
+
+- Replaced the legacy WordPress-inspired skin with the self-hosted Stitch token system; no Tailwind, Google Font or icon CDN was added.
+- Added permission-aware dashboard queries, real workflow queues, Persian StreamField labels, responsive listing cards and shared styling across editors, media, SEO, menus, users, forms and settings.
+- Backend checks and 25 tests pass; frontend lint, TypeScript and production build pass.
+- Live browser screenshot comparison at 1440/1024/768/390 and keyboard/WCAG review remain open acceptance gates in `STITCH_IMPLEMENTATION_CHECKLIST.md`.
